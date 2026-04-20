@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Схема БД — romashka</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f0f2f5;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+    h1 {
+      text-align: center;
+      font-size: 22px;
+      color: #1a1a2e;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      text-align: center;
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 40px;
+    }
+
+    /* Canvas area for SVG lines */
+    .canvas-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    svg.lines {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    /* Grid layout */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: auto auto;
+      gap: 32px 40px;
+      position: relative;
+    }
+
+    /* Table card */
+    .table-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.09);
+      overflow: hidden;
+    }
+    .table-header {
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      color: #fff;
+    }
+    .students  .table-header { background: #4361ee; }
+    .payments  .table-header { background: #3a86ff; }
+    .renewals  .table-header { background: #7209b7; }
+    .satisfaction .table-header { background: #f77f00; }
+    .courses   .table-header { background: #2dc653; }
+    .teachers  .table-header { background: #e63946; }
+
+    .table-body { padding: 8px 0; }
+    .field-row {
+      display: flex;
+      align-items: center;
+      padding: 5px 16px;
+      gap: 8px;
+      font-size: 12.5px;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .field-row:last-child { border-bottom: none; }
+    .field-name { flex: 1; font-family: "SF Mono", "Fira Code", monospace; color: #1a1a2e; }
+    .field-type { color: #888; font-size: 11px; }
+    .badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 1px 5px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+    .badge-pk  { background: #fff3cd; color: #856404; }
+    .badge-fk  { background: #cce5ff; color: #004085; }
+    .badge-cat { background: #e2d9f3; color: #4a1b8a; }
+
+    /* Legend */
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 28px;
+      margin-top: 36px;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      color: #555;
+    }
+    .legend-dot {
+      width: 12px; height: 12px; border-radius: 3px;
+    }
+
+    /* Relation labels */
+    .rel-label {
+      font-size: 10px;
+      fill: #999;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Схема базы данных — romashka</h1>
+<p class="subtitle">PostgreSQL · 6 таблиц · источник: Metabase</p>
+
+<div class="canvas-wrap">
+  <svg class="lines" id="svg-lines"></svg>
+
+  <div class="grid" id="grid">
+
+    <!-- ROW 1 -->
+
+    <!-- students — центр, col 2 -->
+    <div class="table-card students" id="t-students" style="grid-column:2; grid-row:1;">
+      <div class="table-header">👤 students</div>
+      <div class="table-body">
+        <div class="field-row"><span class="field-name">id</span><span class="badge badge-pk">PK</span><span class="field-type">integer</span></div>
+        <div class="field-row"><span class="field-name">last_name</span><span class="field-type">text</span></div>
+        <div class="field-row"><span class="field-name">first_name</span><span class="field-type">text</span></div>
+        <div class="field-row"><span class="field-name">patronymic</span><span class="field-type">text</span></div>
+        <div class="field-row"><span class="field-name">class</span><span class="field-type">text</span></div>
+        <div class="field-row"><span class="field-name">grade_level</span><span class="field-type">integer</span></div>
+        <div class="field-row"><span class="field-name">tariff</span><span class="badge badge-cat">Cat</span><span class="field-type">text</span></div>
+        <div class="field-row"><span class="field-name">start_date</span><span class="field-type">date</span></div>
+        <div class="field-row"><span class="field-name">status</span><span class="badge badge-cat">Cat</span><span class="field-type">text</span></div>
+        <div class="field-row"><span class="field-name">homeroom_teacher_id</span><span class="badge badge-fk">FK</span><span class="field-type">integer</span></div>
+      </div>
+    </div>
+
+    <!-- teachers — col 3 -->
+    <div class="table-card teachers" id="t-teachers" style="grid-column:3; grid-row:1;">
+      <div class="table-header">🎓 teachers</div>
+      <div class="table-body">
+        <div class="field-row"><span class="field-name">id</span><span class="badge badge-pk">PK</span><span class="field-type">integer</span></div>
+        <div class="field-row"><span class="field-name">name</span><span class="field-type">text</span></div>
+        <div class="field-row"><span class="field-name">subject</span><span class="badge badge-cat">Cat</span><span class="field-type">text</span></div>
+      </div>
+    </div>
+
+    <!-- payments — col 1 -->
+    <div class="table-card payments" id="t-payments" style="grid-column:1; grid-row:1;">
+      <div class="table-header">💳 payments</div>
+      <div class="table-body">
+        <div class="field-row"><span class="field-name">id</span><span class="badge badge-pk">PK</span><span class="field-type">integer</span></div>
+        <div class="field-row"><span class="field-name">student_id</span><span class="badge badge-fk">FK</span><span class="field-type">integer</span></div>
+        <div class="field-row"><span class="field-name">month</span><span class="field-type">text</span></div>
+        <div class="field-row"><span class="field-name">amount</span><span class="field-type">decimal</span></div>
+        <div class="field-row"><span class="field-name">due_date</span><span class="field-type">date</span></div>
+        <div class="field-row"><span class="field-name">paid_date</span><span class="field-type">date</span></div>
+        <div class="field-row"><span class="field-name">status</span><span class="badge badge-cat">Cat</span><span class="field-type">text</span></div>
+        <div class="field-row"><span class="field-name">tariff</span><span class="badge badge-cat">Cat</span><span class="field-type">text</span></div>
+      </div>
+    </div>
+
+    <!-- ROW 2 -->
+
+    <!-- renewals — col 1 -->
+    <div class="table-card renewals" id="t-renewals" style="grid-column:1; grid-row:2;">
+      <div class="table-header">🔄 renewals</div>
+      <div class="table-body">
+        <div class="field-row"><span class="field-name">id</span><span class="badge badge-pk">PK</span><span class="field-type">integer</span></div>
+        <div class="field-row"><span class="field-name">student_id</span><span class="badge badge-fk">FK</span><span class="field-type">integer</span></div>
+        <div class="field-row"><span class="field-name">current_year</span><span class="field-type">text</span></div>
+        <div class="field-row"><span class="field-name">renewal_status</span><span class="badge badge-cat">Cat</span><span class="field-type">text</span></div>
+        <div class="field-row"><span class="field-name">renewal_date</span><span class="field-type">date</span></div>
+        <div class="field-row"><span class="field-name">next_year_tariff</span><span class="badge badge-cat">Cat</span><span class="field-type">text</span></div>
+        <div class="field-row"><span class="field-name">comment</span><span class="field-type">text</span></div>
+      </div>
+    </div>
+
+    <!-- satisfaction — col 2 -->
+    <div class="table-card satisfaction" id="t-satisfaction" style="grid-column:2; grid-row:2;">
+      <div class="table-header">⭐ satisfaction</div>
+      <div class="table-body">
+        <div class="field-row"><span class="field-name">id</span><span class="badge badge-pk">PK</span><span class="field-type">integer</span></div>
+        <div class="field-row"><span class="field-name">student_id</span><span class="badge badge-fk">FK</span><span class="field-type">integer</span></div>
+        <div class="field-row"><span class="field-name">score</span><span class="badge badge-cat">Cat</span><span class="field-type">integer</span></div>
+        <div class="field-row"><span class="field-name">comment</span><span class="field-type">text</span></div>
+        <div class="field-row"><span class="field-name">survey_date</span><span class="field-type">date</span></div>
+      </div>
+    </div>
+
+    <!-- courses — col 3 -->
+    <div class="table-card courses" id="t-courses" style="grid-column:3; grid-row:2;">
+      <div class="table-header">📚 courses</div>
+      <div class="table-body">
+        <div class="field-row"><span class="field-name">id</span><span class="badge badge-pk">PK</span><span class="field-type">integer</span></div>
+        <div class="field-row"><span class="field-name">name</span><span class="field-type">text</span></div>
+        <div class="field-row"><span class="field-name">teacher_id</span><span class="badge badge-fk">FK</span><span class="field-type">integer</span></div>
+        <div class="field-row"><span class="field-name">grade_level</span><span class="field-type">integer</span></div>
+        <div class="field-row"><span class="field-name">price_monthly</span><span class="field-type">decimal</span></div>
+      </div>
+    </div>
+
+  </div><!-- /grid -->
+</div><!-- /canvas-wrap -->
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#fff3cd;border:1px solid #856404;"></div> PK — первичный ключ</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#cce5ff;border:1px solid #004085;"></div> FK — внешний ключ</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#e2d9f3;border:1px solid #4a1b8a;"></div> Cat — категориальное поле</div>
+  <div class="legend-item">
+    <svg width="32" height="12"><line x1="0" y1="6" x2="32" y2="6" stroke="#4361ee" stroke-width="2" stroke-dasharray="4,3"/></svg>
+    students → дочерняя таблица
+  </div>
+  <div class="legend-item">
+    <svg width="32" height="12"><line x1="0" y1="6" x2="32" y2="6" stroke="#e63946" stroke-width="2"/></svg>
+    teacher → курс / классрук
+  </div>
+</div>
+
+<script>
+  // Draw SVG connector lines between cards after layout
+  function midX(el) {
+    const r = el.getBoundingClientRect();
+    const wr = el.closest('.canvas-wrap').getBoundingClientRect();
+    return r.left - wr.left + r.width / 2;
+  }
+  function midY(el) {
+    const r = el.getBoundingClientRect();
+    const wr = el.closest('.canvas-wrap').getBoundingClientRect();
+    return r.top - wr.top + r.height / 2;
+  }
+  function right(el) {
+    const r = el.getBoundingClientRect();
+    const wr = el.closest('.canvas-wrap').getBoundingClientRect();
+    return r.right - wr.left;
+  }
+  function left(el) {
+    const r = el.getBoundingClientRect();
+    const wr = el.closest('.canvas-wrap').getBoundingClientRect();
+    return r.left - wr.left;
+  }
+  function top(el) {
+    const r = el.getBoundingClientRect();
+    const wr = el.closest('.canvas-wrap').getBoundingClientRect();
+    return r.top - wr.top;
+  }
+  function bottom(el) {
+    const r = el.getBoundingClientRect();
+    const wr = el.closest('.canvas-wrap').getBoundingClientRect();
+    return r.bottom - wr.top;
+  }
+
+  function makePath(svg, x1, y1, x2, y2, color, dashed, label) {
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    // Cubic bezier
+    const dx = Math.abs(x2 - x1) * 0.5;
+    const d = `M${x1},${y1} C${x1+dx},${y1} ${x2-dx},${y2} ${x2},${y2}`;
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d', d);
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke', color);
+    path.setAttribute('stroke-width', '1.8');
+    if (dashed) path.setAttribute('stroke-dasharray', '5,4');
+    // Arrow marker
+    const markerId = 'arr' + Math.random().toString(36).slice(2);
+    const defs = svg.querySelector('defs') || svg.appendChild(document.createElementNS('http://www.w3.org/2000/svg','defs'));
+    const marker = document.createElementNS('http://www.w3.org/2000/svg','marker');
+    marker.setAttribute('id', markerId);
+    marker.setAttribute('markerWidth','8'); marker.setAttribute('markerHeight','6');
+    marker.setAttribute('refX','8'); marker.setAttribute('refY','3');
+    marker.setAttribute('orient','auto');
+    const poly = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    poly.setAttribute('points','0 0, 8 3, 0 6');
+    poly.setAttribute('fill', color);
+    marker.appendChild(poly); defs.appendChild(marker);
+    path.setAttribute('marker-end', `url(#${markerId})`);
+    g.appendChild(path);
+    if (label) {
+      const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+      t.setAttribute('x', (x1+x2)/2);
+      t.setAttribute('y', (y1+y2)/2 - 5);
+      t.setAttribute('text-anchor','middle');
+      t.setAttribute('class','rel-label');
+      t.textContent = label;
+      g.appendChild(t);
+    }
+    svg.appendChild(g);
+  }
+
+  window.addEventListener('load', () => {
+    const svg = document.getElementById('svg-lines');
+    const wrap = document.querySelector('.canvas-wrap');
+    const wh = wrap.getBoundingClientRect().height;
+    svg.setAttribute('viewBox', `0 0 ${wrap.offsetWidth} ${wh}`);
+
+    const s  = document.getElementById('t-students');
+    const t  = document.getElementById('t-teachers');
+    const p  = document.getElementById('t-payments');
+    const r  = document.getElementById('t-renewals');
+    const sa = document.getElementById('t-satisfaction');
+    const c  = document.getElementById('t-courses');
+
+    // payments → students (left side of students, right side of payments)
+    makePath(svg, right(p), midY(p), left(s), midY(s), '#3a86ff', true, '');
+    // renewals → students (bottom-left → bottom of students)
+    makePath(svg, midX(r), top(r), midX(s), bottom(s), '#7209b7', true, '');
+    // satisfaction → students
+    makePath(svg, left(sa), midY(sa), right(s), midY(s)+40, '#f77f00', true, '');
+    // students → teachers (homeroom)
+    makePath(svg, right(s), midY(s)-20, left(t), midY(t), '#e63946', false, 'homeroom');
+    // courses → teachers
+    makePath(svg, midX(c), top(c), midX(t), bottom(t), '#e63946', false, 'teacher');
+  });
+</script>
+</body>
+</html>
