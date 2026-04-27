@@ -35,10 +35,7 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage,
   limits: { fileSize: 500 * 1024 * 1024 },
-}).fields([
-  { name: 'video', maxCount: 1 },
-  { name: 'thumbnail', maxCount: 1 },
-])
+}).any()
 
 const auth = (req, res, next) => {
   const token = req.headers['x-api-token'] || req.query.token
@@ -74,8 +71,8 @@ app.get('/api/videos/:id', (req, res) => {
 
 // POST /api/videos
 app.post('/api/videos', auth, upload, (req, res) => {
-  const videoFile = req.files?.video?.[0]
-  const thumbFile = req.files?.thumbnail?.[0]
+  const videoFile = req.files?.find(f => f.fieldname === 'video')
+  const thumbFile = req.files?.find(f => f.fieldname === 'thumbnail')
   if (!videoFile) return res.status(400).json({ error: 'No video file in field "video"' })
   const { title, subject, description, transcript, clip_id } = req.body
   const id = clip_id || path.basename(videoFile.filename, path.extname(videoFile.filename))
